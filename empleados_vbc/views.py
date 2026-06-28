@@ -1,16 +1,15 @@
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from empleados.models import Cargo, Empleado
 from empleados.forms import CargoForm, EmpleadoForm
 
-# ─── CARGOS ───────────────────────────────────────────
-
-class CargoListView(ListView):
+class CargoListView(LoginRequiredMixin, ListView):
     model = Cargo
     template_name = 'empleados_vbc/cargo_lista.html'
     context_object_name = 'cargos'
 
-class CargoCreateView(CreateView):
+class CargoCreateView(LoginRequiredMixin, CreateView):
     model = Cargo
     form_class = CargoForm
     template_name = 'empleados_vbc/cargo_form.html'
@@ -21,7 +20,7 @@ class CargoCreateView(CreateView):
         context['titulo'] = 'Nuevo Cargo (VBC)'
         return context
 
-class CargoUpdateView(UpdateView):
+class CargoUpdateView(LoginRequiredMixin, UpdateView):
     model = Cargo
     form_class = CargoForm
     template_name = 'empleados_vbc/cargo_form.html'
@@ -32,20 +31,18 @@ class CargoUpdateView(UpdateView):
         context['titulo'] = 'Editar Cargo (VBC)'
         return context
 
-class CargoDeleteView(DeleteView):
+class CargoDeleteView(LoginRequiredMixin, DeleteView):
     model = Cargo
     template_name = 'empleados_vbc/cargo_confirmar_eliminar.html'
     success_url = reverse_lazy('vbc_cargo_lista')
     context_object_name = 'objeto'
 
-# ─── EMPLEADOS ────────────────────────────────────────
-
-class EmpleadoListView(ListView):
+class EmpleadoListView(LoginRequiredMixin, ListView):
     model = Empleado
     template_name = 'empleados_vbc/empleado_lista.html'
     context_object_name = 'empleados'
 
-class EmpleadoCreateView(CreateView):
+class EmpleadoCreateView(LoginRequiredMixin, CreateView):
     model = Empleado
     form_class = EmpleadoForm
     template_name = 'empleados_vbc/empleado_form.html'
@@ -56,7 +53,7 @@ class EmpleadoCreateView(CreateView):
         context['titulo'] = 'Nuevo Empleado (VBC)'
         return context
 
-class EmpleadoUpdateView(UpdateView):
+class EmpleadoUpdateView(LoginRequiredMixin, UpdateView):
     model = Empleado
     form_class = EmpleadoForm
     template_name = 'empleados_vbc/empleado_form.html'
@@ -67,7 +64,7 @@ class EmpleadoUpdateView(UpdateView):
         context['titulo'] = 'Editar Empleado (VBC)'
         return context
 
-class EmpleadoDeleteView(DeleteView):
+class EmpleadoDeleteView(LoginRequiredMixin, DeleteView):
     model = Empleado
     template_name = 'empleados_vbc/empleado_confirmar_eliminar.html'
     success_url = reverse_lazy('vbc_empleado_lista')
