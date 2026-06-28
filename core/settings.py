@@ -82,3 +82,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/empleados/'
+
+# Duración de la sesión
+SESSION_COOKIE_AGE = 3600  # 1 en segundos
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No cerrar sesión al cerrar el navegador
