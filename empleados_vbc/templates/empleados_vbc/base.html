@@ -11,14 +11,25 @@
         <div class="container">
             <a class="navbar-brand" href="#">CRUD Empleados VBC</a>
             <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'vbc_empleado_lista' %}">Empleados</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'vbc_cargo_lista' %}">Cargos</a>
+                    </li>
+                </ul>
                 <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <span class="navbar-text text-white me-3">{{ request.user.username }}</span>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
-                </li>
-            </ul>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light me-3" href="{% url 'empleado_lista' %}">Cambiar a VBF</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="navbar-text text-white me-3">{{ request.user.username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
