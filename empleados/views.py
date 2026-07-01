@@ -66,3 +66,12 @@ def empleado_eliminar(request, pk):
         empleado.delete()
         return redirect('empleado_lista')
     return render(request, 'empleados/empleado_confirmar_eliminar.html', {'objeto': empleado})
+
+@login_required
+def home(request):
+    total_empleados = Empleado.objects.count()
+    total_cargos = Cargo.objects.count()
+    return render(request, 'empleados/home.html', {
+        'total_empleados': total_empleados,
+        'total_cargos': total_cargos,
+    })
