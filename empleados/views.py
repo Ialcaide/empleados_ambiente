@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Cargo, Empleado
 from .forms import CargoForm, EmpleadoForm
+from django.core.paginator import Paginator
 
 
 # ─── CARGOS ───────────────────────────────────────────
@@ -15,8 +16,14 @@ def cargo_lista(request):
             models.Q(nombre__icontains=query) |
             models.Q(descripcion__icontains=query)
         )
+
+    paginator = Paginator(cargos, 10)  # 10 cargos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'empleados/cargo_lista.html', {
-        'cargos': cargos,
+        'cargos': page_obj,
+        'page_obj': page_obj,
         'query': query,
     })
 
@@ -74,9 +81,14 @@ def empleado_lista(request):
     if sueldo_max:
         empleados = empleados.filter(sueldo__lte=sueldo_max)
 
+    paginator = Paginator(empleados, 10)  # 10 empleados por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     cargos = Cargo.objects.all()
     return render(request, 'empleados/empleado_lista.html', {
-        'empleados': empleados,
+        'empleados': page_obj,
+        'page_obj': page_obj,
         'cargos': cargos,
         'query': query,
         'cargo_filtro': cargo_filtro,

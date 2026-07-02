@@ -1,0 +1,110 @@
+:root {
+    --azul-oscuro: #0d1b2a;
+    --azul-medio: #1b2d45;
+    --azul-acento: #1e6091;
+    --azul-claro: #2196f3;
+    --texto-claro: #e0e6ed;
+}
+
+body {
+    background-color: #f0f4f8;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar {
+    background: linear-gradient(135deg, var(--azul-oscuro), var(--azul-medio)) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: white !important;
+}
+
+.nav-link {
+    color: var(--texto-claro) !important;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--azul-claro) !important;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.card-resumen {
+    background: linear-gradient(135deg, var(--azul-acento), var(--azul-claro));
+    color: white;
+    border-radius: 12px;
+}
+
+.card-resumen .card-footer {
+    background: rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.card-vista {
+    border-top: 4px solid var(--azul-claro);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--azul-acento), var(--azul-claro));
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33,150,243,0.4);
+}
+
+.btn-success {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+}
+
+.btn-outline-primary {
+    border-radius: 8px;
+    font-weight: 500;
+    border-color: var(--azul-claro);
+    color: var(--azul-claro);
+}
+
+.btn-outline-success {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.icono-grande {
+    font-size: 3rem;
+    opacity: 0.8;
+}
+
+footer {
+    background: linear-gradient(135deg, var(--azul-oscuro), var(--azul-medio));
+    color: var(--texto-claro);
+    text-align: center;
+    padding: 16px;
+    margin-top: 60px;
+    font-size: 0.9rem;
+}
