@@ -13,4 +13,8 @@ urlpatterns = [
     path('empleados/nuevo/', views.empleado_crear, name='empleado_crear'),
     path('empleados/editar/<int:pk>/', views.empleado_editar, name='empleado_editar'),
     path('empleados/eliminar/<int:pk>/', views.empleado_eliminar, name='empleado_eliminar'),
+    path('empleados/exportar/excel/', views.exportar_excel, name='exportar_excel'),
+    path('empleados/exportar/pdf/', views.exportar_pdf, name='exportar_pdf'),
+    
+    
 ]

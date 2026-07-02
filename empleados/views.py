@@ -3,6 +3,96 @@ from django.contrib.auth.decorators import login_required
 from .models import Cargo, Empleado
 from .forms import CargoForm, EmpleadoForm
 from django.core.paginator import Paginator
+from django.contrib import messages
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from django.http import HttpResponse
+
+@login_required
+def exportar_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Empleados'
+
+    # Estilos
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='0D1B2A', end_color='0D1B2A', fill_type='solid')
+    header_alignment = Alignment(horizontal='center')
+
+    # Encabezados
+    headers = ['#', 'Nombres', 'Apellidos', 'Correo', 'Sueldo', 'Fecha Ingreso', 'Cargo']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    # Datos
+    empleados = Empleado.objects.select_related('cargo').all()
+    for row, emp in enumerate(empleados, 2):
+        ws.cell(row=row, column=1, value=emp.id)
+        ws.cell(row=row, column=2, value=emp.nombres)
+        ws.cell(row=row, column=3, value=emp.apellidos)
+        ws.cell(row=row, column=4, value=emp.correo)
+        ws.cell(row=row, column=5, value=float(emp.sueldo))
+        ws.cell(row=row, column=6, value=str(emp.fecha_ingreso))
+        ws.cell(row=row, column=7, value=str(emp.cargo))
+
+    # Ancho de columnas
+    for col in ws.columns:
+        max_length = max(len(str(cell.value or '')) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = max_length + 4
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="empleados.xlsx"'
+    wb.save(response)
+    return response
+
+@login_required
+def exportar_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="empleados.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=landscape(letter))
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Título
+    elements.append(Paragraph('Lista de Empleados', styles['Title']))
+
+    # Datos
+    data = [['#', 'Nombres', 'Apellidos', 'Correo', 'Sueldo', 'Fecha Ingreso', 'Cargo']]
+    empleados = Empleado.objects.select_related('cargo').all()
+    for emp in empleados:
+        data.append([
+            str(emp.id),
+            emp.nombres,
+            emp.apellidos,
+            emp.correo,
+            f'${emp.sueldo}',
+            str(emp.fecha_ingreso),
+            str(emp.cargo),
+        ])
+
+    table = Table(data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0D1B2A')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f4f8')]),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d0dce8')),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('PADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(table)
+    doc.build(elements)
+    return response
 
 
 # ─── CARGOS ───────────────────────────────────────────
@@ -32,6 +122,7 @@ def cargo_crear(request):
     form = CargoForm(request.POST or None)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Cargo creado exitosamente.')
         return redirect('cargo_lista')
     return render(request, 'empleados/cargo_form.html', {'form': form, 'titulo': 'Nuevo Cargo'})
 
@@ -41,6 +132,7 @@ def cargo_editar(request, pk):
     form = CargoForm(request.POST or None, instance=cargo)
     if form.is_valid():
         form.save()
+        messages.success(request, f'Cargo "{cargo.nombre}" actualizado exitosamente.')
         return redirect('cargo_lista')
     return render(request, 'empleados/cargo_form.html', {'form': form, 'titulo': 'Editar Cargo'})
 
@@ -48,7 +140,9 @@ def cargo_editar(request, pk):
 def cargo_eliminar(request, pk):
     cargo = get_object_or_404(Cargo, pk=pk)
     if request.method == 'POST':
+        nombre = cargo.nombre
         cargo.delete()
+        messages.success(request, f'Cargo "{nombre}" eliminado exitosamente.')
         return redirect('cargo_lista')
     return render(request, 'empleados/cargo_confirmar_eliminar.html', {'objeto': cargo})
 
@@ -103,6 +197,7 @@ def empleado_crear(request):
     form = EmpleadoForm(request.POST or None)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Empleado creado exitosamente.')
         return redirect('empleado_lista')
     return render(request, 'empleados/empleado_form.html', {'form': form, 'titulo': 'Nuevo Empleado'})
 
@@ -112,6 +207,7 @@ def empleado_editar(request, pk):
     form = EmpleadoForm(request.POST or None, instance=empleado)
     if form.is_valid():
         form.save()
+        messages.success(request, f'Empleado "{empleado.nombres}" actualizado exitosamente.')
         return redirect('empleado_lista')
     return render(request, 'empleados/empleado_form.html', {'form': form, 'titulo': 'Editar Empleado'})
 
@@ -119,7 +215,8 @@ def empleado_editar(request, pk):
 def empleado_eliminar(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == 'POST':
+        nombre = f"{empleado.nombres} {empleado.apellidos}"
         empleado.delete()
+        messages.success(request, f'Empleado "{nombre}" eliminado exitosamente.')
         return redirect('empleado_lista')
     return render(request, 'empleados/empleado_confirmar_eliminar.html', {'objeto': empleado})
-

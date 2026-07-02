@@ -136,3 +136,8 @@ footer {
     margin-top: 60px;
     font-size: 0.9rem;
 }
+.navbar .nav-link.active {
+    color: white !important;
+    border-bottom: 2px solid var(--verde-claro);
+    padding-bottom: 4px;
+}
