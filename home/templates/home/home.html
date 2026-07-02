@@ -39,13 +39,13 @@
 
     <!-- Bienvenida -->
     <div class="mb-4">
-        <h2><i class="bi bi-house-fill me-2 text-primary"></i>Bienvenido, {{ request.user.username }} </h2>
+        <h2><i class="bi bi-house-fill me-2 text-primary"></i>Bienvenido, {{ request.user.username }}</h2>
         <p class="text-muted">Panel de administración de empleados y cargos</p>
     </div>
 
     <!-- Tarjetas de resumen -->
     <div class="row mb-4">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card card-resumen shadow">
                 <div class="card-body d-flex justify-content-between align-items-center p-4">
                     <div>
@@ -61,7 +61,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card shadow" style="background: linear-gradient(135deg, #1e6b45, #28a745); color: white; border-radius: 12px;">
                 <div class="card-body d-flex justify-content-between align-items-center p-4">
                     <div>
@@ -73,6 +73,38 @@
                 <div class="card-footer" style="background: rgba(0,0,0,0.15); border: none; border-radius: 0 0 12px 12px;">
                     <a href="{% url 'cargo_lista' %}" class="text-white text-decoration-none">
                         <i class="bi bi-arrow-right me-1"></i>Ver cargos
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #1a6634, #27ae60); color: white; border-radius: 12px;">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h6 class="card-title mb-1 opacity-75">Empleados Activos</h6>
+                        <h1 class="mb-0 fw-bold">{{ total_activos }}</h1>
+                    </div>
+                    <i class="bi bi-person-check-fill icono-grande"></i>
+                </div>
+                <div class="card-footer" style="background: rgba(0,0,0,0.15); border: none; border-radius: 0 0 12px 12px;">
+                    <a href="{% url 'empleado_lista' %}?estado=activo" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-right me-1"></i>Ver activos
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; border-radius: 12px;">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h6 class="card-title mb-1 opacity-75">Empleados Inactivos</h6>
+                        <h1 class="mb-0 fw-bold">{{ total_inactivos }}</h1>
+                    </div>
+                    <i class="bi bi-person-x-fill icono-grande"></i>
+                </div>
+                <div class="card-footer" style="background: rgba(0,0,0,0.15); border: none; border-radius: 0 0 12px 12px;">
+                    <a href="{% url 'empleado_lista' %}?estado=inactivo" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-right me-1"></i>Ver inactivos
                     </a>
                 </div>
             </div>
@@ -92,16 +124,6 @@
                 <div class="col-md-3">
                     <a href="{% url 'cargo_crear' %}" class="btn btn-success w-100">
                         <i class="bi bi-briefcase me-1"></i>Nuevo Cargo
-                    </a>
-                </div>
-                <div class="col-md-3">
-                    <a href="{% url 'empleado_lista' %}" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-list-ul me-1"></i>Ver Empleados
-                    </a>
-                </div>
-                <div class="col-md-3">
-                    <a href="{% url 'cargo_lista' %}" class="btn btn-outline-success w-100">
-                        <i class="bi bi-list-ul me-1"></i>Ver Cargos
                     </a>
                 </div>
             </div>
