@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'empleados',
     'empleados_vbc',
     'autenticacion',
+    'home',
 ]
 
 MIDDLEWARE = [
