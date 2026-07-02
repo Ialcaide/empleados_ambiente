@@ -4,6 +4,8 @@ from django.contrib import messages
 from .forms import RegisterForm
 
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     form = RegisterForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -12,13 +14,15 @@ def register_view(request):
     return render(request, 'autenticacion/register.html', {'form': form})
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('empleado_lista')
+            return redirect('home')
         else:
             messages.error(request, 'Usuario o contraseña incorrectos.')
     return render(request, 'autenticacion/login.html')
