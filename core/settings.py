@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'empleados_vbc',
     'autenticacion',
     'home',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
