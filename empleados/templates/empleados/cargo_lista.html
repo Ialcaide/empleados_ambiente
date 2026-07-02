@@ -6,6 +6,21 @@
     <a href="{% url 'cargo_crear' %}" class="btn btn-primary">+ Nuevo Cargo</a>
 </div>
 
+<!-- Barra de búsqueda siempre visible -->
+<form method="GET" class="mb-3">
+    <div class="row g-2">
+        <div class="col">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por nombre o descripción..." value="{{ query }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'cargo_lista' %}" class="btn btn-secondary">Limpiar</a>
+        </div>
+    </div>
+</form>
+
 <table class="table table-bordered table-hover">
     <thead class="table-primary">
         <tr>
@@ -28,7 +43,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4" class="text-center">No hay cargos registrados.</td>
+            <td colspan="4" class="text-center">No se encontraron cargos.</td>
         </tr>
         {% endfor %}
     </tbody>

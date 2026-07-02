@@ -3,12 +3,22 @@ from django.contrib.auth.decorators import login_required
 from .models import Cargo, Empleado
 from .forms import CargoForm, EmpleadoForm
 
+
 # ─── CARGOS ───────────────────────────────────────────
 
 @login_required
 def cargo_lista(request):
     cargos = Cargo.objects.all()
-    return render(request, 'empleados/cargo_lista.html', {'cargos': cargos})
+    query = request.GET.get('q', '')
+    if query:
+        cargos = cargos.filter(
+            models.Q(nombre__icontains=query) |
+            models.Q(descripcion__icontains=query)
+        )
+    return render(request, 'empleados/cargo_lista.html', {
+        'cargos': cargos,
+        'query': query,
+    })
 
 @login_required
 def cargo_crear(request):
@@ -40,7 +50,41 @@ def cargo_eliminar(request, pk):
 @login_required
 def empleado_lista(request):
     empleados = Empleado.objects.select_related('cargo').all()
-    return render(request, 'empleados/empleado_lista.html', {'empleados': empleados})
+    
+    query = request.GET.get('q', '')
+    cargo_filtro = request.GET.get('cargo', '')
+    fecha_desde = request.GET.get('fecha_desde', '')
+    fecha_hasta = request.GET.get('fecha_hasta', '')
+    sueldo_min = request.GET.get('sueldo_min', '')
+    sueldo_max = request.GET.get('sueldo_max', '')
+
+    if query:
+        empleados = empleados.filter(
+            models.Q(nombres__icontains=query) |
+            models.Q(apellidos__icontains=query)
+        )
+    if cargo_filtro:
+        empleados = empleados.filter(cargo__id=cargo_filtro)
+    if fecha_desde:
+        empleados = empleados.filter(fecha_ingreso__gte=fecha_desde)
+    if fecha_hasta:
+        empleados = empleados.filter(fecha_ingreso__lte=fecha_hasta)
+    if sueldo_min:
+        empleados = empleados.filter(sueldo__gte=sueldo_min)
+    if sueldo_max:
+        empleados = empleados.filter(sueldo__lte=sueldo_max)
+
+    cargos = Cargo.objects.all()
+    return render(request, 'empleados/empleado_lista.html', {
+        'empleados': empleados,
+        'cargos': cargos,
+        'query': query,
+        'cargo_filtro': cargo_filtro,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+        'sueldo_min': sueldo_min,
+        'sueldo_max': sueldo_max,
+    })
 
 @login_required
 def empleado_crear(request):
