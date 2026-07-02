@@ -18,7 +18,6 @@ class CargoForm(forms.ModelForm):
         nombre = self.cleaned_data.get('nombre')
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
             raise forms.ValidationError('El nombre del cargo solo puede contener letras y espacios.')
-        # Verificar que no se repita, excluyendo el registro actual si es edición
         qs = Cargo.objects.filter(nombre__iexact=nombre)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
@@ -36,15 +35,21 @@ class CargoForm(forms.ModelForm):
 class EmpleadoForm(forms.ModelForm):
     class Meta:
         model = Empleado
-        fields = ['nombres', 'apellidos', 'correo', 'sueldo', 'fecha_ingreso', 'cargo']
+        fields = ['nombres', 'apellidos', 'correo', 'sueldo', 'fecha_ingreso', 'cargo', 'activo']
         widgets = {
             'nombres': forms.TextInput(attrs={'class': 'form-control'}),
             'apellidos': forms.TextInput(attrs={'class': 'form-control'}),
             'correo': forms.EmailInput(attrs={'class': 'form-control'}),
             'sueldo': forms.NumberInput(attrs={'class': 'form-control'}),
-            'fecha_ingreso': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_ingreso': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
             'cargo': forms.Select(attrs={'class': 'form-select'}),
+            'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.fecha_ingreso:
+            self.initial['fecha_ingreso'] = self.instance.fecha_ingreso.strftime('%Y-%m-%d')
 
     def clean_nombres(self):
         nombres = self.cleaned_data.get('nombres')
@@ -81,6 +86,8 @@ class EmpleadoForm(forms.ModelForm):
                 raise forms.ValidationError(f'El sueldo no puede ser negativo. Ingresaste: ${sueldo}.')
             if sueldo < SALARIO_BASICO:
                 raise forms.ValidationError(f'El sueldo (${sueldo}) no puede ser menor al salario básico de ${SALARIO_BASICO}.')
+            if sueldo > 7000:
+                raise forms.ValidationError(f'El sueldo (${sueldo}) no puede ser mayor a $7,000.')
         return sueldo
 
     def clean_fecha_ingreso(self):

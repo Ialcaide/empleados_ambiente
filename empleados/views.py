@@ -95,6 +95,76 @@ def exportar_pdf(request):
     return response
 
 
+@login_required
+def exportar_cargos_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Cargos'
+
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='0D1B2A', end_color='0D1B2A', fill_type='solid')
+    header_alignment = Alignment(horizontal='center')
+
+    headers = ['#', 'Nombre', 'Descripción', 'Total Empleados']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    cargos = Cargo.objects.all()
+    for row, cargo in enumerate(cargos, 2):
+        ws.cell(row=row, column=1, value=cargo.id)
+        ws.cell(row=row, column=2, value=cargo.nombre)
+        ws.cell(row=row, column=3, value=cargo.descripcion)
+        ws.cell(row=row, column=4, value=cargo.empleado_set.count())
+
+    for col in ws.columns:
+        max_length = max(len(str(cell.value or '')) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = max_length + 4
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="cargos.xlsx"'
+    wb.save(response)
+    return response
+
+@login_required
+def exportar_cargos_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="cargos.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph('Lista de Cargos', styles['Title']))
+
+    data = [['#', 'Nombre', 'Descripción', 'Total Empleados']]
+    cargos = Cargo.objects.all()
+    for cargo in cargos:
+        data.append([
+            str(cargo.id),
+            cargo.nombre,
+            cargo.descripcion or '',
+            str(cargo.empleado_set.count()),
+        ])
+
+    table = Table(data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0D1B2A')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f4f8')]),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d0dce8')),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('PADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(table)
+    doc.build(elements)
+    return response
+
 # ─── CARGOS ───────────────────────────────────────────
 
 @login_required
@@ -158,6 +228,7 @@ def empleado_lista(request):
     fecha_hasta = request.GET.get('fecha_hasta', '')
     sueldo_min = request.GET.get('sueldo_min', '')
     sueldo_max = request.GET.get('sueldo_max', '')
+    estado = request.GET.get('estado', '')
 
     if query:
         empleados = empleados.filter(
@@ -174,8 +245,12 @@ def empleado_lista(request):
         empleados = empleados.filter(sueldo__gte=sueldo_min)
     if sueldo_max:
         empleados = empleados.filter(sueldo__lte=sueldo_max)
+    if estado == 'activo':
+        empleados = empleados.filter(activo=True)
+    elif estado == 'inactivo':
+        empleados = empleados.filter(activo=False)
 
-    paginator = Paginator(empleados, 10)  # 10 empleados por página
+    paginator = Paginator(empleados, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -190,6 +265,7 @@ def empleado_lista(request):
         'fecha_hasta': fecha_hasta,
         'sueldo_min': sueldo_min,
         'sueldo_max': sueldo_max,
+        'estado': estado,
     })
 
 @login_required
@@ -220,3 +296,14 @@ def empleado_eliminar(request, pk):
         messages.success(request, f'Empleado "{nombre}" eliminado exitosamente.')
         return redirect('empleado_lista')
     return render(request, 'empleados/empleado_confirmar_eliminar.html', {'objeto': empleado})
+
+@login_required
+def empleado_detalle(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    return render(request, 'empleados/empleado_detalle.html', {'empleado': empleado})
+
+@login_required
+def cargo_detalle(request, pk):
+    cargo = get_object_or_404(Cargo, pk=pk)
+    empleados = Empleado.objects.filter(cargo=cargo)
+    return render(request, 'empleados/cargo_detalle.html', {'cargo': cargo, 'empleados': empleados})

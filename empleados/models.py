@@ -14,6 +14,7 @@ class Empleado(models.Model):
     sueldo = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_ingreso = models.DateField()
     cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"

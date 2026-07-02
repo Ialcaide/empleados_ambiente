@@ -3,8 +3,67 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Lista de Empleados (VBC)</h2>
-    <a href="{% url 'vbc_empleado_crear' %}" class="btn btn-primary">+ Nuevo Empleado</a>
+    <a href="{% url 'vbc_empleado_crear' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Nuevo Empleado
+    </a>
 </div>
+
+<!-- Barra de búsqueda siempre visible -->
+<form method="GET" class="mb-3">
+    <div class="row g-2">
+        <div class="col">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por nombre o apellido..." value="{{ query }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i>Buscar
+            </button>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'vbc_empleado_lista' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+            </a>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtros">
+                <i class="bi bi-funnel me-1"></i>Filtros
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros colapsables -->
+    <div class="collapse mt-3 {% if cargo_filtro or fecha_desde or fecha_hasta or sueldo_min or sueldo_max %}show{% endif %}" id="filtros">
+        <div class="card card-body shadow-sm">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Cargo</label>
+                    <select name="cargo" class="form-select">
+                        <option value="">Todos</option>
+                        {% for cargo in cargos %}
+                        <option value="{{ cargo.id }}" {% if cargo_filtro == cargo.id|stringformat:"s" %}selected{% endif %}>{{ cargo.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha desde</label>
+                    <input type="date" name="fecha_desde" class="form-control" value="{{ fecha_desde }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">$ Min</label>
+                    <input type="number" name="sueldo_min" class="form-control" value="{{ sueldo_min }}">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">$ Max</label>
+                    <input type="number" name="sueldo_max" class="form-control" value="{{ sueldo_max }}">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 <table class="table table-bordered table-hover">
     <thead class="table-primary">
@@ -30,15 +89,100 @@
             <td>{{ empleado.fecha_ingreso }}</td>
             <td>{{ empleado.cargo }}</td>
             <td>
-                <a href="{% url 'vbc_empleado_editar' empleado.pk %}" class="btn btn-warning btn-sm">Editar</a>
-                <a href="{% url 'vbc_empleado_eliminar' empleado.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                <a href="{% url 'vbc_empleado_detalle' empleado.pk %}" class="btn btn-info btn-sm">
+                    <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'vbc_empleado_editar' empleado.pk %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil me-1"></i>Editar
+                </a>
+                <button class="btn btn-danger btn-sm btn-eliminar"
+                    data-pk="{{ empleado.pk }}"
+                    data-nombre="{{ empleado.nombres }} {{ empleado.apellidos }}">
+                    <i class="bi bi-trash me-1"></i>Eliminar
+                </button>
             </td>
-        </tr>
+                    </tr>
         {% empty %}
         <tr>
-            <td colspan="8" class="text-center">No hay empleados registrados.</td>
+            <td colspan="8" class="text-center">No se encontraron empleados.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Paginación -->
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">««</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">‹</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">›</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">»»</a>
+        </li>
+        {% endif %}
+    </ul>
+    <p class="text-center text-muted">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} — {{ page_obj.paginator.count }} empleados en total</p>
+</nav>
+
+<!-- Modal eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #c0392b, #e74c3c);">
+                <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-exclamation-triangle text-danger mb-3" style="font-size: 3rem; display:block;"></i>
+                <p class="fs-5">¿Estás segura de eliminar a <strong id="nombreEmpleado"></strong>?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0">
+                <form method="POST" id="formEliminar">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-trash me-1"></i>Sí, eliminar
+                    </button>
+                </form>
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.btn-eliminar').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const pk = this.dataset.pk;
+        const nombre = this.dataset.nombre;
+        document.getElementById('nombreEmpleado').textContent = nombre;
+        document.getElementById('formEliminar').action = `/vbc/empleados/eliminar/${pk}/`;
+        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+    });
+});
+</script>
 {% endblock %}

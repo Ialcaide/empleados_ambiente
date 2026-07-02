@@ -40,7 +40,7 @@
     </div>
 
     <!-- Filtros colapsables -->
-    <div class="collapse mt-3 {% if cargo_filtro or fecha_desde or fecha_hasta or sueldo_min or sueldo_max %}show{% endif %}" id="filtros">
+    <div class="collapse mt-3 {% if cargo_filtro or fecha_desde or fecha_hasta or sueldo_min or sueldo_max or estado %}show{% endif %}" id="filtros">
         <div class="card card-body shadow-sm">
             <div class="row g-2">
                 <div class="col-md-3">
@@ -52,11 +52,11 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Fecha desde</label>
                     <input type="date" name="fecha_desde" class="form-control" value="{{ fecha_desde }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Fecha hasta</label>
                     <input type="date" name="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
                 </div>
@@ -67,6 +67,14 @@
                 <div class="col-md-1">
                     <label class="form-label">$ Max</label>
                     <input type="number" name="sueldo_max" class="form-control" value="{{ sueldo_max }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -83,6 +91,7 @@
             <th>Sueldo</th>
             <th>Fecha Ingreso</th>
             <th>Cargo</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -97,6 +106,16 @@
             <td>{{ empleado.fecha_ingreso }}</td>
             <td>{{ empleado.cargo }}</td>
             <td>
+                {% if empleado.activo %}
+                <span class="badge bg-success">Activo</span>
+                {% else %}
+                <span class="badge bg-danger">Inactivo</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'empleado_detalle' empleado.pk %}" class="btn btn-info btn-sm">
+                    <i class="bi bi-eye"></i>
+                </a>
                 <a href="{% url 'empleado_editar' empleado.pk %}" class="btn btn-warning btn-sm">
                     <i class="bi bi-pencil me-1"></i>Editar
                 </a>
@@ -109,7 +128,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="8" class="text-center">No se encontraron empleados.</td>
+            <td colspan="9" class="text-center">No se encontraron empleados.</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -120,10 +139,10 @@
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?page=1&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">««</a>
+            <a class="page-link" href="?page=1&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}&estado={{ estado }}">««</a>
         </li>
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">‹</a>
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}&estado={{ estado }}">‹</a>
         </li>
         {% endif %}
 
@@ -134,17 +153,17 @@
         </li>
         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ num }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">{{ num }}</a>
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}&estado={{ estado }}">{{ num }}</a>
         </li>
         {% endif %}
         {% endfor %}
 
         {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">›</a>
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}&estado={{ estado }}">›</a>
         </li>
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}">»»</a>
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&cargo={{ cargo_filtro }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&sueldo_min={{ sueldo_min }}&sueldo_max={{ sueldo_max }}&estado={{ estado }}">»»</a>
         </li>
         {% endif %}
     </ul>
