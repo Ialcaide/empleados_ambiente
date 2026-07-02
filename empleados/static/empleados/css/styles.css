@@ -142,3 +142,97 @@ footer {
     border-bottom: 2px solid var(--azul-claro);
     padding-bottom: 4px;
 }
+
+/* Botones de acción en tabla */
+.btn-sm {
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    border: none;
+    color: white;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(14,165,233,0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    border: none;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(217,119,6,0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(220,38,38,0.4);
+}
+
+/* Agrupar botones en tabla */
+td .btn + .btn {
+    margin-left: 3px;
+}
+
+/* Badge estado */
+.badge {
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Botones de acción modernos */
+.btn-sm {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    border: none;
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    border: none;
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    border: none;
+    color: white;
+}
